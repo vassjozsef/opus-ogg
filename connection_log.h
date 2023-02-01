@@ -13,7 +13,7 @@ public:
    ~ConnectionLog();
 
   bool IsOK() { return fp_; }
-  bool ReadNext(ConnectionLogVisitor& visitor);
+  bool ReadNext(ConnectionLogVisitor* visitor);
 
 private:
   struct EventHeader {
@@ -24,7 +24,7 @@ private:
 
   enum class EventType { LocalUser, UserInfo, CodecInfo, Send, Receive };
 
-  bool HandleJsonEvent(ConnectionLogVisitor& visitor, EventHeader& header, std::vector<uint8_t>& buffer);
+  bool HandleJsonEvent(EventHeader& header, std::vector<uint8_t>& buffer);
 
   FILE* fp_{};
 };

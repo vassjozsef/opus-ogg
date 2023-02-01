@@ -14,7 +14,7 @@ ConnectionLog::~ConnectionLog()
     }
 }
 
-bool ConnectionLog::ReadNext(ConnectionLogVisitor& visitor)
+bool ConnectionLog::ReadNext(ConnectionLogVisitor* visitor)
 {
     EventHeader header;
     std::vector<uint8_t> buf; // this is not intended to be fast...
@@ -37,19 +37,19 @@ bool ConnectionLog::ReadNext(ConnectionLogVisitor& visitor)
     case EventType::LocalUser:
     case EventType::UserInfo:
     case EventType::CodecInfo:
-        return HandleJsonEvent(visitor, header, buf);
+        return HandleJsonEvent(header, buf);
     case EventType::Receive:
-        visitor.OnReceivedPacket(header.timestamp, buf.data(), buf.size());
+        visitor->OnReceivedPacket(header.timestamp, buf.data(), buf.size());
         break;
     case EventType::Send:
-        visitor.OnSentPacket(header.timestamp, buf.data(), buf.size());
+        visitor->OnSentPacket(header.timestamp, buf.data(), buf.size());
         break;
     }
 
     return true;
 }
 
-bool ConnectionLog::HandleJsonEvent(ConnectionLogVisitor& visitor, EventHeader& header, std::vector<uint8_t>& buffer)
+bool ConnectionLog::HandleJsonEvent(EventHeader& header, std::vector<uint8_t>& buffer)
 {
   char const* bufStart = reinterpret_cast<char const*>(buffer.data());
   char const* bufEnd = bufStart + buffer.size();
