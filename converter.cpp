@@ -2,6 +2,7 @@
 
 #include "connection_log.h"
 #include "ogg_packer.h"
+#include "rtp.h"
 
 class ConnectionLogReader: public ConnectionLogVisitor
 {
@@ -45,9 +46,18 @@ void ConnectionLogReader::OnSentPacket(uint64_t timestamp, uint8_t const* buf, s
 }
 
 void ConnectionLogReader::OnReceivedPacket(uint64_t timestamp, uint8_t const* buf, size_t length) {
-  std::cout << "Packet received of size: " << length << std::endl;
   packetsReceived_++;
   bytesReceived_ += length;
+
+  Rtp rtp(buf, length);
+  if (!rtp.Parse()) {
+    std::cout << "Failed to parse RTP packet" << std::endl;
+  }
+
+  std::cout << "RTP received, ssrc: " << (long)rtp.getSsrc() << ", pt: " << (int)rtp.getPayloadType()
+      << ", ext: " << rtp.getExt() << "(" << rtp.getExtensionHeaderLength() <<  "), cc: "
+      << (int)rtp.getCc() << ", sn: " << rtp.getSequenceNumber() << ", ts: " << rtp.getTimestamp()
+      << ", size: " << length << std::endl;
 }
 
 int main(int argc, char** argv) {

@@ -9,44 +9,44 @@ ConnectionLog::ConnectionLog(std::string const& outputPath) {
 
 ConnectionLog::~ConnectionLog()
 {
-    if (fp_) {
-        fclose(fp_);
-    }
+  if (fp_) {
+    fclose(fp_);
+  }
 }
 
 bool ConnectionLog::ReadNext(ConnectionLogVisitor* visitor)
 {
-    EventHeader header;
-    std::vector<uint8_t> buf; // this is not intended to be fast...
+  EventHeader header;
+  std::vector<uint8_t> buf;
 
-    if (!fp_) {
-        return false;
-    }
+  if (!fp_) {
+    return false;
+  }
 
-    if (fread(&header, sizeof(EventHeader), 1, fp_) != 1) {
-        return false;
-    }
+  if (fread(&header, sizeof(EventHeader), 1, fp_) != 1) {
+    return false;
+  }
 
-    buf.resize(header.payloadLength);
+  buf.resize(header.payloadLength);
 
-    if (fread(buf.data(), header.payloadLength, 1, fp_) != 1) {
-        return false;
-    }
+  if (fread(buf.data(), header.payloadLength, 1, fp_) != 1) {
+    return false;
+  }
 
-    switch (static_cast<EventType>(header.eventType)) {
-    case EventType::LocalUser:
-    case EventType::UserInfo:
-    case EventType::CodecInfo:
-        return HandleJsonEvent(header, buf);
-    case EventType::Receive:
-        visitor->OnReceivedPacket(header.timestamp, buf.data(), buf.size());
-        break;
-    case EventType::Send:
-        visitor->OnSentPacket(header.timestamp, buf.data(), buf.size());
-        break;
-    }
+  switch (static_cast<EventType>(header.eventType)) {
+  case EventType::LocalUser:
+  case EventType::UserInfo:
+  case EventType::CodecInfo:
+    return HandleJsonEvent(header, buf);
+  case EventType::Receive:
+    visitor->OnReceivedPacket(header.timestamp, buf.data(), buf.size());
+    break;
+  case EventType::Send:
+    visitor->OnSentPacket(header.timestamp, buf.data(), buf.size());
+    break;
+  }
 
-    return true;
+  return true;
 }
 
 bool ConnectionLog::HandleJsonEvent(EventHeader& header, std::vector<uint8_t>& buffer)
