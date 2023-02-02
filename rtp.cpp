@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+const size_t RtpHeaderLength = 12;
+
 template<typename T>
 T get(uint8_t* buffer) {
   T rv{0};
@@ -24,7 +26,7 @@ T get(uint8_t* buffer) {
     }
 
     extension_ = buffer_[0] & 0x10;
-    uint8_t cc = buffer_[0] & 0xf;
+    cc_ = buffer_[0] & 0xf;
     mark_ = buffer_[1] & 0x80;
     payloadType_ = buffer_[1] & 0x7f;
     sequenceNumber_ = get<uint16_t>(&buffer_[2]);
@@ -32,8 +34,13 @@ T get(uint8_t* buffer) {
     ssrc_ = get<uint32_t>(&buffer_[8]);
 
     if (extension_) {
-        extensionHeaderLength_ = get<uint16_t>(&buffer_[12 + cc * 4 + 2]);
+        extensionHeaderLength_ = get<uint16_t>(&buffer_[RtpHeaderLength + cc_ * 4 + 2]);
     }
 
     return true;
+  }
+
+  uint8_t* Rtp::getPayload() const {
+    auto extensionHeaderLengthBytes = extension_ ? 4 * (extensionHeaderLength_ + 1): 0;
+    return &buffer_[RtpHeaderLength + cc_ * 4 + extensionHeaderLengthBytes];
   }
