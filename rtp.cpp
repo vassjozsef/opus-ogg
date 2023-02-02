@@ -14,9 +14,16 @@ T get(uint8_t* buffer) {
   return rv;
 }
 
-  Rtp::Rtp(uint8_t const* buf, size_t length) {
-    buffer_ = std::make_unique<uint8_t[]>(length);
-    memcpy(buffer_.get(), buf, length);
+  Rtp::Rtp(uint8_t const* buf, size_t length) :
+    length_{length} {
+    buffer_ = (uint8_t*)malloc(length);
+    memcpy(buffer_, buf, length);
+  }
+
+  Rtp::~Rtp() {
+    if (buffer_) {
+        free(buffer_);
+    }
   }
 
   bool Rtp::Parse() {
@@ -43,4 +50,9 @@ T get(uint8_t* buffer) {
   uint8_t* Rtp::getPayload() const {
     auto extensionHeaderLengthBytes = extension_ ? 4 * (extensionHeaderLength_ + 1): 0;
     return &buffer_[RtpHeaderLength + cc_ * 4 + extensionHeaderLengthBytes];
+  }
+
+  size_t Rtp::getPayloadSize() const {
+    auto extensionHeaderLengthBytes = extension_ ? 4 * (extensionHeaderLength_ + 1): 0;
+    return length_ - (RtpHeaderLength + cc_ * 4 + extensionHeaderLengthBytes);
   }
