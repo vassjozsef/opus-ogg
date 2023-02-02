@@ -8,9 +8,12 @@ extern "C" {
 #include "opus_header.h"
 }
 
-const int OpusSsrc = 1387;
-const int SamplesPerFrame = 960;
-const int CommentPad = 512;
+constexpr int OpusSsrc = 1387;
+constexpr int SampleRate = 48000;
+constexpr int Channels = 1;
+constexpr int SamplesPerFrame = 960;
+constexpr int CommentPad = 512;
+constexpr uint8_t SilentPacket[]{248, 255, 254};
 
 class OggWriter: public ConnectionLogVisitor
 {
@@ -23,6 +26,7 @@ public:
 private:
   bool WriteIdHeader(int sampleRate, int channels);
   bool WriteCommentHeader();
+  bool WriteEndStream();
   bool OutputPages();
 
   // ConnectionLogVisitor
@@ -90,7 +94,8 @@ bool OggWriter::WriteIdHeader(int sampleRate, int channels)
    return OutputPages();
 }
 
-bool OggWriter::WriteCommentHeader() {
+bool OggWriter::WriteCommentHeader()
+{
   char* comment;
   int length;
   auto vendorString = "Opus provided by WebRTC b2228fe20";
@@ -104,6 +109,17 @@ bool OggWriter::WriteCommentHeader() {
   return OutputPages();
 }
 
+bool OggWriter::WriteEndStream()
+{
+  OutputPages();
+  auto payloadSize = sizeof(SilentPacket);
+  unsigned char* p = oggp_get_packet_buffer(oggp_, payloadSize);
+  memcpy(p, SilentPacket, payloadSize);
+  granulePos_ += SamplesPerFrame;
+  oggp_commit_packet(oggp_, payloadSize, granulePos_, 1);
+  return OutputPages();
+}
+
 bool OggWriter::Start() {
   if (!log_->IsOK()) {
     return false;
@@ -113,7 +129,7 @@ bool OggWriter::Start() {
     return false;
   }
 
-  if (!WriteIdHeader(48000, 1)) {
+  if (!WriteIdHeader(SampleRate, Channels)) {
     std::cout << "Failed to write id header" << std::endl;
     return false;
   }
@@ -130,6 +146,10 @@ bool OggWriter::Start() {
 
   std::cout << "Packets received: " << packetsReceived_ << std::endl;
   std::cout << "Bytes received: " << bytesReceived_ << std::endl;
+
+  if (!WriteEndStream()) {
+    std::cout << "Faield to write end of stream" << std::endl;
+  }
 
   return true;
 }

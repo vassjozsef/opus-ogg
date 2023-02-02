@@ -31,16 +31,16 @@
 #include <stdlib.h>
 
 typedef struct {
-   int version;
-   int channels; /* Number of channels: 1..255 */
-   int preskip;
-   uint32_t input_sample_rate;
-   int32_t gain; /* in dB S7.8 should be zero whenever possible */
-   int channel_mapping;
-   /* The rest is only used if channel_mapping != 0 */
-   int nb_streams;
-   int nb_coupled;
-   unsigned char stream_map[255];
+  int version;
+  int channels; /* Number of channels: 1..255 */
+  int preskip;
+  uint32_t input_sample_rate;
+  int32_t gain; /* in dB S7.8 should be zero whenever possible */
+  int channel_mapping;
+  /* The rest is only used if channel_mapping != 0 */
+  int nb_streams;
+  int nb_coupled;
+  unsigned char stream_map[255];
 } OpusHeader;
 
 int opeint_opus_header_get_size(const OpusHeader *h);
