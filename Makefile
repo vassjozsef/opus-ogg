@@ -2,8 +2,11 @@ CC = clang
 CXX = clang++
 CXXFLAGS=-std=c++14
 
-converter: ogg_packer.o opus_header.o converter.o connection_log.o rtp.o
-	$(CXX) $(CXXFLAGS) ogg_packer.o opus_header.o converter.o connection_log.o rtp.o -o converter
+convertr: ogg_packer.o opus_header.o ogg_writer.o converter.o connection_log.o rtp.o
+	$(CXX) $(CXXFLAGS) ogg_packer.o opus_header.o connection_log.o rtp.o ogg_writer.o converter.o -o converter
+
+ogg_writer.o: ogg_writer.cpp ogg_writer.h
+	$(CXX) $(CXXFLAGS) ogg_writer.cpp -c -o ogg_writer.o
 
 ogg_packer.o: ogg_packer.c ogg_packer.h
 	$(CC) ogg_packer.c -c -o ogg_packer.o
