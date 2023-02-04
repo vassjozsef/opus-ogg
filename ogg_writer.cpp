@@ -24,7 +24,7 @@ bool OggWriter::OutputPages() {
   int len;
   while (oggp_get_next_page(oggp_, &page, &len)) {
     auto written = fwrite(page, 1, len, fpOgg_);
-    if (written != len) {
+    if (written != (size_t)len) {
       return false;
     }
   }
@@ -82,11 +82,13 @@ bool OggWriter::WriteEndStream()
 }
 
 bool OggWriter::WritePacket(const uint8_t* packet, size_t length) {
+  bool rc{true};
   unsigned char* p = oggp_get_packet_buffer(oggp_, length);
   memcpy(p, packet, length);
   granulePos_ += SamplesPerFrame;
   oggp_commit_packet(oggp_, length, granulePos_, 0);
   if (granulePos_ >= 48000) {
-    OutputPages();
+    rc &= OutputPages();
   }
+  return rc;
 }

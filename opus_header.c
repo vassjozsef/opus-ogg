@@ -110,7 +110,6 @@ int opeint_opus_header_get_size(const OpusHeader *h)
 
 int opeint_opus_header_to_packet(const OpusHeader *h, unsigned char *packet, int len)
 {
-   int i;
    Packet p;
    unsigned char ch;
 
