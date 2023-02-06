@@ -55,13 +55,12 @@ bool OggWriter::WriteIdHeader(int sampleRate, int channels)
    return OutputPages();
 }
 
-bool OggWriter::WriteCommentHeader()
+bool OggWriter::WriteCommentHeader(const std::string& vendor, const std::string& encoder)
 {
   char* comment;
   int length;
-  auto vendorString = "Opus provided by WebRTC b2228fe20";
-  opeint_comment_init(&comment, &length, vendorString);
-  opeint_comment_add(&comment, &length, "ENCODER", "Discord Client");
+  opeint_comment_init(&comment, &length, vendor.c_str());
+  opeint_comment_add(&comment, &length, "ENCODER", encoder.c_str());
   opeint_comment_pad(&comment, &length, CommentPad);
   unsigned char* p = oggp_get_packet_buffer(oggp_, length);
   memcpy(p, comment, length);

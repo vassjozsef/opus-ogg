@@ -12,10 +12,11 @@ public:
   ~OggWriter();
 
   bool WriteIdHeader(int sampleRate, int channels);
-  bool WriteCommentHeader();
+  bool WriteCommentHeader(const std::string& vendor, const std::string& encoder);
   bool WritePacket(const uint8_t* packet, size_t length);
   bool WriteEndStream();
-  bool isOk() const { return fpOgg_; }
+  bool IsOk() const { return fpOgg_; }
+  int64_t GetGranulePos() const { return granulePos_; }
 
 private:
   bool OutputPages();

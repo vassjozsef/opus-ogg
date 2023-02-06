@@ -31,7 +31,7 @@ Converter::Converter(std::string const& logPath, std::string const& oggPath)
 }
 
 bool Converter::Start() {
-  if (!connectionLog_.IsOK() || !oggWriter_.isOk()) {
+  if (!connectionLog_.IsOK() || !oggWriter_.IsOk()) {
     return false;
   }
 
@@ -40,7 +40,9 @@ bool Converter::Start() {
     return false;
   }
 
-  if (!oggWriter_.WriteCommentHeader()) {
+  auto version = "Opus provided by WebRTC M89";
+  auto encoder = "Discord Client";
+  if (!oggWriter_.WriteCommentHeader(version, encoder)) {
     std::cout << "Failed to write comment header" << std::endl;
     return false;
   }
