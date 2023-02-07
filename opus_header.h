@@ -28,6 +28,7 @@
 #ifndef OPUS_HEADER_H
 #define OPUS_HEADER_H
 
+#include <stdint.h>
 #include <stdlib.h>
 
 typedef struct {
