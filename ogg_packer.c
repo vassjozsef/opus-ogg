@@ -342,7 +342,7 @@ int oggp_flush_page(oggpacker *oggp) {
       for (i=0;i<255;i++) bytes += oggp->lacing[oggp->lacing_begin+1];
       p->buf_size = bytes;
       p->lacing_size = 255;
-      p->granulepos = -1;
+      p->granulepos = (oggp_uint64)-1;
       cont = 1;
     } else {
       p->buf_size = oggp->buf_fill - oggp->buf_begin;
