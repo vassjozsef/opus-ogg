@@ -10,7 +10,9 @@ constexpr uint8_t SilentPacket[]{248, 255, 254};
 
 OggWriter::OggWriter(std::string const& oggPath)
 {
-  fpOgg_ = fopen(oggPath.c_str(), "wb");
+  if (!oggPath.empty()) {  
+    fpOgg_ = fopen(oggPath.c_str(), "wb");
+  }
 }
 
 OggWriter::~OggWriter()
