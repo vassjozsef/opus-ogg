@@ -30,7 +30,8 @@ Converter::Converter(std::string const& logPath, std::string const& oggPath)
 {
 }
 
-bool Converter::Start() {
+bool Converter::Start()
+{
   if (!connectionLog_.IsOK() || !oggWriter_.IsOk()) {
     return false;
   }
@@ -62,12 +63,14 @@ bool Converter::Start() {
   return true;
 }
 
-void Converter::OnSentPacket(uint64_t timestamp, uint8_t const* buf, size_t length) {
+void Converter::OnSentPacket(uint64_t timestamp, uint8_t const* buf, size_t length)
+{
   std::cout << "Packet sent of size: " << length << std::endl;
 }
 
-void Converter::OnReceivedPacket(uint64_t timestamp, uint8_t const* buf, size_t length) {
-Rtp rtp(buf, length);
+void Converter::OnReceivedPacket(uint64_t timestamp, uint8_t const* buf, size_t length)
+{
+  Rtp rtp(buf, length);
   if (!rtp.Parse()) {
     std::cout << "Failed to parse RTP packet" << std::endl;
   }
@@ -87,7 +90,8 @@ Rtp rtp(buf, length);
   oggWriter_.WritePacket(rtp.getPayload(), rtp.getPayloadSize()); 
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   if (argc != 3) {
     std::cout << "Usage: " << argv[0] << " input_file output_file" << std::endl;
   }

@@ -42,19 +42,19 @@ bool OggWriter::WriteIdHeader(int sampleRate, int channels)
   header.gain = 0;
   header.channel_mapping = 0;
 
-   auto serial = rand();
-   oggp_ = oggp_create(serial);
-   if (!oggp_) {
+  auto serial = rand();
+  oggp_ = oggp_create(serial);
+  if (!oggp_) {
     return false;
-   }
-   oggp_set_muxing_delay(oggp_, 48000);
+  }
+  oggp_set_muxing_delay(oggp_, 48000);
 
-   int headerSize = opeint_opus_header_get_size(&header);
-   unsigned char* p = oggp_get_packet_buffer(oggp_, headerSize);
-   int packetSize = opeint_opus_header_to_packet(&header, p, headerSize);
-   oggp_commit_packet(oggp_, packetSize, 0, 0);
-   oggp_flush_page(oggp_);
-   return OutputPages();
+  int headerSize = opeint_opus_header_get_size(&header);
+  unsigned char* p = oggp_get_packet_buffer(oggp_, headerSize);
+  int packetSize = opeint_opus_header_to_packet(&header, p, headerSize);
+  oggp_commit_packet(oggp_, packetSize, 0, 0);
+  oggp_flush_page(oggp_);
+  return OutputPages();
 }
 
 bool OggWriter::WriteCommentHeader(const std::string& vendor, const std::string& encoder)
@@ -83,7 +83,8 @@ bool OggWriter::WriteEndStream()
   return OutputPages();
 }
 
-bool OggWriter::WritePacket(const uint8_t* packet, size_t length) {
+bool OggWriter::WritePacket(const uint8_t* packet, size_t length)
+{
   unsigned char* p = oggp_get_packet_buffer(oggp_, length);
   memcpy(p, packet, length);
   granulePos_ += SamplesPerFrame;

@@ -3,7 +3,8 @@
 #include <iostream>
 #include <vector>
 
-ConnectionLog::ConnectionLog(std::string const& outputPath) {
+ConnectionLog::ConnectionLog(std::string const& outputPath)
+{
   fp_ = fopen(outputPath.c_str(), "rb+");
 }
 
