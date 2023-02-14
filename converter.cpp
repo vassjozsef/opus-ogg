@@ -20,8 +20,8 @@ private:
   ConnectionLog connectionLog_;
   OggWriter oggWriter_;
 
-  size_t packetsReceived_{0};
-  size_t bytesReceived_{0};
+  size_t packetsWritten_{0};
+  size_t bytesWritten_{0};
 };
 
 Converter::Converter(std::string const& logPath, std::string const& oggPath)
@@ -52,8 +52,8 @@ bool Converter::Start() {
     eof = !connectionLog_.ReadNext(this);
   }
 
-  std::cout << "Packets received: " << packetsReceived_ << std::endl;
-  std::cout << "Bytes received: " << bytesReceived_ << std::endl;
+  std::cout << "Packets written: " << packetsWritten_ << std::endl;
+  std::cout << "Bytes written: " << bytesWritten_ << std::endl;
 
   if (!oggWriter_.WriteEndStream()) {
     std::cout << "Faield to write end of stream" << std::endl;
@@ -67,10 +67,7 @@ void Converter::OnSentPacket(uint64_t timestamp, uint8_t const* buf, size_t leng
 }
 
 void Converter::OnReceivedPacket(uint64_t timestamp, uint8_t const* buf, size_t length) {
-  packetsReceived_++;
-  bytesReceived_ += length;
-
-  Rtp rtp(buf, length);
+Rtp rtp(buf, length);
   if (!rtp.Parse()) {
     std::cout << "Failed to parse RTP packet" << std::endl;
   }
@@ -83,6 +80,9 @@ void Converter::OnReceivedPacket(uint64_t timestamp, uint8_t const* buf, size_t 
   if (rtp.getSsrc() != OpusSsrc) {
     return;
   }
+
+  packetsWritten_++;
+  bytesWritten_ += length;
 
   oggWriter_.WritePacket(rtp.getPayload(), rtp.getPayloadSize()); 
 }
